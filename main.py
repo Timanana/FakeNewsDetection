@@ -51,7 +51,6 @@ def load():
   import spacy
 
   subprocess.run(['python', '-m', 'spacy', 'download', 'en_core_web_md'])
-  import en_core_web_md
   text_to_nlp = spacy.load('en_core_web_md')
 
   y_train = [label for url, html, label in train_data]
