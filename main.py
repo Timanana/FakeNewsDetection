@@ -16,6 +16,7 @@ def load():
   # capture data
   import pickle
   import requests
+  import urllib.request
   import io
   import zipfile
 
@@ -23,13 +24,14 @@ def load():
   from bs4 import BeautifulSoup as bs
   
   # download and unzip resources
-  import wget
-  subprocess.run(['wget', '-O', 'data.zip', 'https://storage.googleapis.com/inspirit-ai-data-bucket-1/Data/AI%20Scholars/Sessions%206%20-%2010%20(Projects)/Project%20-%20Fake%20News%20Detection/inspirit_fake_news_resources%20(1).zip'])
-  subprocess.run(['unzip', 'data.zip'])
   basepath = '.'
-
-  with open(os.path.join(basepath, 'train_val_data.pkl'), 'rb') as f:
-    train_data, val_data = pickle.load(f)
+  if os.path.exists(os.path.join(basepath, 'train_val_data.pkl')):
+    urllib.request.urlretrieve(
+      'https://storage.googleapis.com/inspirit-ai-data-bucket-1/Data/AI%20Scholars/Sessions%206%20-%2010%20(Projects)/Project%20-%20Fake%20News%20Detection/inspirit_fake_news_resources%20(1).zip', 'data.zip'
+    )
+    subprocess.run(['unzip', 'data.zip'])
+    with open(os.path.join(basepath, 'train_val_data.pkl'), 'rb') as f:
+      train_data, val_data = pickle.load(f)
 
   # model
   from sklearn.feature_extraction.text import CountVectorizer
