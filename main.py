@@ -25,7 +25,7 @@ def load():
   
   # download and unzip resources
   basepath = '.'
-  if os.path.exists(os.path.join(basepath, 'train_val_data.pkl')):
+  if not os.path.exists(os.path.join(basepath, 'train_val_data.pkl')):
     urllib.request.urlretrieve(
       'https://storage.googleapis.com/inspirit-ai-data-bucket-1/Data/AI%20Scholars/Sessions%206%20-%2010%20(Projects)/Project%20-%20Fake%20News%20Detection/inspirit_fake_news_resources%20(1).zip', 'data.zip'
     )
