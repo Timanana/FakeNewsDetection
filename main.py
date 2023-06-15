@@ -34,8 +34,8 @@ def load():
     with zipfile.ZipFile('data.zip') as zip:
        zip.extractall()
     
-    with open(os.path.join(basepath, 'train_val_data.pkl'), 'rb') as f:
-      train_data, val_data = pickle.load(f)
+  with open(os.path.join(basepath, 'train_val_data.pkl'), 'rb') as f:
+    train_data, val_data = pickle.load(f)
 
   # model
   from sklearn.feature_extraction.text import CountVectorizer
