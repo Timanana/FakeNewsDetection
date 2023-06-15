@@ -20,7 +20,7 @@ def load():
   import zipfile
 
   # html
-  subprocess.run(['pip', 'install', 'beautifulsoup4'])
+  subprocess.run(['pip', 'install', 'BeautifulSoup4'])
   from bs4 import BeautifulSoup as bs
 
   # download and unzip resources
