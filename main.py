@@ -21,8 +21,9 @@ def load():
 
   # html
   from bs4 import BeautifulSoup as bs
-
+  
   # download and unzip resources
+  import wget
   subprocess.run(['wget', '-O', 'data.zip', 'https://storage.googleapis.com/inspirit-ai-data-bucket-1/Data/AI%20Scholars/Sessions%206%20-%2010%20(Projects)/Project%20-%20Fake%20News%20Detection/inspirit_fake_news_resources%20(1).zip'])
   subprocess.run(['unzip', 'data.zip'])
   basepath = '.'
