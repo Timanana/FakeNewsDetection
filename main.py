@@ -242,8 +242,8 @@ def load():
 
     return X
 
-  train_glove_features = glove_transform_data_descriptions(tqdm(train_descriptions, desc="Calculating GloVes from training data"))
-  val_glove_features = glove_transform_data_descriptions(tqdm(val_descriptions, desc="Calculating GloVes from validation data"))
+  train_glove_features = glove_transform_data_descriptions(train_descriptions)
+  val_glove_features = glove_transform_data_descriptions(val_descriptions)
 
   def url_extension_featurizer(url, html, index, is_train, description):
     features = {}
