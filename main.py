@@ -3,7 +3,7 @@ import subprocess
 
 st.set_page_config(layout='wide', page_title='Fake News Detection | Inspirit AI Weekday 2 All-Hands 3', page_icon=':newspaper:')
 
-# load the model and stuff [ADD]
+# load the model and stuff
 @st.cache_resource
 def load():
   # system
@@ -20,7 +20,6 @@ def load():
   import zipfile
 
   # html
-  subprocess.run(['pip', 'install', 'BeautifulSoup4'])
   from bs4 import BeautifulSoup as bs
 
   # download and unzip resources
