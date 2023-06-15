@@ -18,7 +18,6 @@ def load():
   import requests
   import io
   import zipfile
-  from tqdm import tqdm
 
   # html
   from bs4 import BeautifulSoup as bs
