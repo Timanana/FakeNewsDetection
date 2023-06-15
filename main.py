@@ -29,7 +29,11 @@ def load():
     urllib.request.urlretrieve(
       'https://storage.googleapis.com/inspirit-ai-data-bucket-1/Data/AI%20Scholars/Sessions%206%20-%2010%20(Projects)/Project%20-%20Fake%20News%20Detection/inspirit_fake_news_resources%20(1).zip', 'data.zip'
     )
-    subprocess.run(['unzip', 'data.zip'])
+    
+    import zipfile
+    with zipfile.ZipFile('data.zip') as zip:
+       zip.extractall()
+    
     with open(os.path.join(basepath, 'train_val_data.pkl'), 'rb') as f:
       train_data, val_data = pickle.load(f)
 
