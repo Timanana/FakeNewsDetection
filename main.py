@@ -339,16 +339,16 @@ left, right = st.columns(2)
 left.title('Fake News Detection')
 left.header('Inspirit AI')
 left.subheader('Weekday 2 All-Hands 3')
-left.text('**Instructor:** Paul')
-left.text('**Group Members:** Daanish, Daniel, Dheeraj, Justin, Pranil, Timothy')
+left.write('**Instructor:** Paul')
+left.write('**Group Members:** Daanish, Daniel, Dheeraj, Justin, Pranil, Timothy')
 
 left.divider()
 
-left.text('See the [Google Colab](https://colab.research.google.com/drive/1NutMv5iJ2DAbU_YHPRonSrurvHQ2Al9v?usp=sharing).')
+left.write('See the [Google Colab](https://colab.research.google.com/drive/1NutMv5iJ2DAbU_YHPRonSrurvHQ2Al9v?usp=sharing).')
 
 left.divider()
 
-left.text('Here are some metrics! ... metrics')
+left.write('Here are some metrics! ... metrics')
 
 # on the right side, allow users to submit a URL
 right.header('Try it out!')
@@ -367,7 +367,6 @@ with right.form(key='try_it_out'):
       _, feature_values = zip(*features.items())
 
       prediction = model.predict([feature_values])[0]
-
       advice = st.text('*We predict that your news is ' + ('FAKE' if prediction else 'REAL') + ' news!')
 
       # put some scores, maybe? idk
