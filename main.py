@@ -307,6 +307,7 @@ with right.form(key='try_it_out'):
       url = raw_url.split('/')[2]
 
       features = compiled_featurizer(url, html)
+      warnings.warn(str(features))
       _, feature_values = zip(*features.items())
 
       prediction = model.predict([feature_values])[0]
