@@ -288,7 +288,7 @@ left.divider()
     *  Bag of Words.
        *  We count the number of each of a set of the `300` most common words in the description of the website, and create `300` features.
     *  GloVe.
-       *  We use the average word embeddings of the description of the website.
+       *  We use the average GloVe word embeddings of the description of the website as a list of several features.
     *  Lengths (of URL and HTML).
        *  We calculated the lengths of the URL and HTML.
 """
@@ -318,15 +318,14 @@ with right.form(key='try_it_out'):
       st.write('*We predict that your news is ' + ('FAKE' if prediction else 'REAL') + ' news!*')      
       st.divider()
       
-      items = sorted(zip(feature_descriptions, [(abs(coef_ * feature_values[index]), coef_) for index, coef_ in enumerate(model.coef_[0].tolist()) if (coef_ > 0 and prediction) or (coef_ < 0 and not prediction)]), key=lambda x: x[1][0], reverse=True)
-
-      warnings.warn(str(items)[:100]) # debug
+      products = [(coef_ * feature_values[index], coef_) for index, coef_ in enumerate(model.coef_[0].tolist())]
+      items = sorted(zip(feature_descriptions, products), key=lambda item: (1 if prediction else -1) * item[1][0], reverse=True)
       
       with st.expander('See why.'):
         st.write('The top three features that allowed us to make this decision were: **' + items[0][0] + '**, **' + items[1][0] + '**, and **' + items[2][0] + '**!')
       
       with st.expander('See model parameters.'):
-        st.write('The intercept (the value when all features are 0) is: ' + str(model.intercept_[0]) + '.')
+        st.write('The intercept (the value when all features are 0) is: **' + str(model.intercept_[0]) + '**.')
         st.divider()
         st.write('Here are all the feature weights that contributed to the decision.')
         st.write(show_weights(items))
