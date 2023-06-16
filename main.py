@@ -217,9 +217,9 @@ def load():
   model, X_train, X_val, feature_descriptions = instantiate_model(compiled_featurizer)
   warnings.warn('Trained model.')
     
-  return model, X_train, X_val, feature_descriptions, compiled_featurizer, requests, confusion_matrix, print_metrics, show_weights
+  return model, X_train, X_val, feature_descriptions, compiled_featurizer, requests, confusion_matrix, print_metrics
 
-model, X_train, X_val, feature_descriptions, compiled_featurizer, requests, confusion_matrix, print_metrics, show_weights = load()
+model, X_train, X_val, feature_descriptions, compiled_featurizer, requests, confusion_matrix, print_metrics = load()
 
 # columns
 left, right = st.columns(2)
