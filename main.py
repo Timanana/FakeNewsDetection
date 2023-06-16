@@ -237,6 +237,17 @@ left.write('**Group Members:** Daanish, Daniel, Dheeraj, Justin, Pranil, Timothy
 
 left.divider()
 
+best_matrix = Image.open('best_matrix.png')
+
+left.image(best_matrix, caption='Confusion matrix.')
+left.subheader('Here are some metrics for the most accurate model we trained!')
+left.write('**Maximum achieved accuracy:** $\\frac{299}{309}\\approx96.8\%$')
+left.write('**Maximum achieved precision:** $100\%$')
+left.write('**Maximum achieved recall:** $\\frac{131}{141}\\approx92.9\%$')
+left.write('**Maximum achieved F-1 score:** $\\frac{131}{136}\\approx96.3\%$')
+
+left.divider()
+
 """
 *  Basics
     *  For each news article or site, we use extract **features** from the **URL** and **HTML**, such as, a vector describing the domain extension of the URL.
@@ -282,25 +293,16 @@ left.divider()
        *  We calculated the lengths of the URL and HTML.
 """
 
-best_matrix = Image.open('best_matrix.png')
-left.subheader('Here are some metrics for our model!')
-left.write('**Maximum achieved accuracy:** $\\frac{299}{309}\\approx96.8\%$')
-left.write('**Maximum achieved precision:** $100\%$')
-left.write('**Maximum achieved recall:** $\\frac{131}{141}\\approx92.9\%$')
-left.write('**Maximum achieved F-1 score:** $\\frac{131}{136}\\approx96.3\%$')
-
 # on the right side, allow users to submit a URL
 right.header('Try it out!')
 right.write('*(Note that we do not use the bag-of-words or GloVe features in this model, in order to speed up deployment and save memory. See our [Google Colab](https://colab.research.google.com/drive/1NutMv5iJ2DAbU_YHPRonSrurvHQ2Al9v?usp=sharing) if you would like to view the entirety of the code).*')
-
-left.divider()
 
 with right.form(key='try_it_out'):
   url = st.text_input(label='Enter a news article or site URL to predict validity', key='url')
   advice = st.write('*Make sure your URL is a valid news site.*')
 
   if st.form_submit_button(label='Submit', type='primary'):
-    try:
+#     try:
       response = requests.get(url)
       html = response.text.lower()
 
@@ -310,5 +312,5 @@ with right.form(key='try_it_out'):
       prediction = model.predict([feature_values])[0]
       items = sorted(zip(feature_descriptions, [abs(coef_ * feature_values[index]) for index, coef_ in enumerate(model.coef_[0].tolist()) if (coef_ > 0 and prediction) or (coef_ < 0 and not prediction)]), key=lambda x: x[1], reverse=True)
       advice = st.write('*We predict that your news is ' + ('FAKE' if prediction else 'REAL') + ' news!*\n\n' + 'The top three features that allowed us to make this decision were: **' + items[0][0] + '**, **' + items[1][0] + '**, and **' + items[2][0] + '**!\n---\nHere are all the weights (there will be many).\n\n' + show_weights(model, feature_descriptions))
-    except:
-      advice = st.text('*I don\'t think your URL worked. Please check your spelling or try another.*')
+#     except:
+#       advice = st.text('*I don\'t think your URL worked. Please check your spelling or try another.*')
