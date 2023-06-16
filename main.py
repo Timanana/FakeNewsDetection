@@ -98,7 +98,7 @@ def load():
         group_features = featurizer(url, html)
 
         if type(group_features) == type([]):
-          for feature_name, feature_value in zip(range(len(group_features))):
+          for feature_name, feature_value in zip(range(len(group_features)), group_features):
             features[group_name + ' [' + feature_name + ']'] = feature_value
         elif type(group_features) == type({}):
           for feature_name, feature_value in group_features.items():
@@ -147,10 +147,6 @@ def load():
   def print_metrics(y_val, y_val_pred):
     prf = precision_recall_fscore_support(y_val, y_val_pred)
     return {'Accuracy': accuracy_score(y_val, y_val_pred), 'Precision': prf[0][1], 'Recall': prf[1][1], 'F-1 Score': prf[2][1]}
-
-  # show weights (coefficients for each feature)
-  def show_weights(items):
-    return '\n\n'.join(map(lambda feature: f'The feature `{feature[0]}` has a weight of **{feature[1][1]}**. Multiplied by its value gives **{feature[1][0]}**.', items))
 
   # gets the log count of a phrase/keyword in HTML (transforming the phrase/keyword to lowercase).
   def get_normalized_keyword_count(html, keyword):
@@ -328,6 +324,6 @@ with right.form(key='try_it_out'):
         st.write('The intercept (the value when all features are 0) is: **' + str(model.intercept_[0]) + '**.')
         st.divider()
         st.write('Here are all the feature weights that contributed to the decision.')
-        st.write(show_weights(items))
+        st.write('\n\n'.join(map(lambda feature: f'The feature `{feature[0]}` has a weight of **{feature[1][1]}**. Multiplied by its value gives **{feature[1][0]}**.', items)))
 #     except:
 #       advice = st.write('*I don\'t think your URL worked. Please check your spelling or try another.*')
