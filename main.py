@@ -1,5 +1,6 @@
 import streamlit as st
 import subprocess
+import warnings
 
 st.set_page_config(layout='wide', page_title='Fake News Detection | Inspirit AI Weekday 2 All-Hands 3', page_icon=':newspaper:')
 
@@ -37,7 +38,7 @@ def load():
   with open(os.path.join(basepath, 'train_val_data.pkl'), 'rb') as f:
     train_data, val_data = pickle.load(f)
   
-  print('Data loaded.')
+  warnings.warn('Data loaded.')
 
   # model
   from sklearn.feature_extraction.text import CountVectorizer
@@ -136,8 +137,8 @@ def load():
     tick_marks = np.arange(len(class_names))
     plt.xticks(tick_marks, class_names)
     plt.yticks(tick_marks, class_names)
-    sns.heatmap(pd.DataFrame(cnf_matrix), annot=True, cmap="YlGnBu", fmt='g') # Creating heatmap
-    ax.xaxis.set_label_position("top")
+    sns.heatmap(pd.DataFrame(cnf_matrix), annot=True, cmap='YlGnBu', fmt='g') # Creating heatmap
+    ax.xaxis.set_label_position('top')
     plt.tight_layout()
     plt.title('Confusion matrix', y = 1.1)
     plt.ylabel('Actual Labels')
@@ -154,7 +155,7 @@ def load():
 
   # show weights (coefficients for each feature)
   def show_weights(model, feature_descriptions):
-    print("\n\n".join(map(lambda feature: f"The feature '{feature[0]}' has a value of {feature[1]}.\nBecause of its sign, the presence of this feature indicates {'fake' if feature[1] > 0 else 'real'} news.", sorted(zip(feature_descriptions, baseline_model.coef_[0].tolist()), key=lambda x: abs(x[1])))))
+    print('\n\n'.join(map(lambda feature: f"The feature '{feature[0]}' has a value of {feature[1]}.\nBecause of its sign, the presence of this feature indicates {'fake' if feature[1] > 0 else 'real'} news.", sorted(zip(feature_descriptions, baseline_model.coef_[0].tolist()), key=lambda x: abs(x[1])))))
 
   # gets the log count of a phrase/keyword in HTML (transforming the phrase/keyword to lowercase).
   def get_normalized_keyword_count(html, soup, keyword):
@@ -163,7 +164,7 @@ def load():
       necessary_html = soup.body.get_text() # already parsed, contains a body
     except:
       try:
-        necessary_html = html.split("<body")[1].split("</body>")[0] # soup could not find a body, but there does exist a body
+        necessary_html = html.split('<body')[1].split('</body>')[0] # soup could not find a body, but there does exist a body
       except:
         necessary_html = html # if it doesn't have a body...
 
@@ -188,7 +189,7 @@ def load():
   train_bs = [bs(html, 'html.parser') for url, html, label in train_data]
   val_bs = [bs(html, 'html.parser') for url, html, label in val_data]
   
-  print('Created soups.')
+  warnings.warn('Created soups.')
 
   # get raw descriptions
   def get_descriptions_from_data(data, is_train):
@@ -206,7 +207,7 @@ def load():
   train_descriptions = get_descriptions_from_data(train_data, True)
   val_descriptions = get_descriptions_from_data(val_data, False)
   
-  print('Found descriptions.')
+  warnings.warn('Found descriptions.')
 
   # bag of words (bow)
   vectorizer = CountVectorizer(max_features=300) # create a new vectorizer
@@ -218,7 +219,7 @@ def load():
   train_bow_features = np.array(vectorize_data_descriptions(train_descriptions))
   val_bow_features = np.array(vectorize_data_descriptions(val_descriptions))
   
-  print('Created Bag-of-Words features.')
+  warnings.warn('Created Bag-of-Words features.')
 
   # GloVe
   VEC_SIZE = 300
@@ -253,7 +254,7 @@ def load():
   train_glove_features = glove_transform_data_descriptions(train_descriptions)
   val_glove_features = glove_transform_data_descriptions(val_descriptions)
   
-  print('Created GloVe features.')
+  warnings.warn('Created GloVe features.')
 
   def url_extension_featurizer(url, html, index, is_train, description):
     features = {}
@@ -319,20 +320,17 @@ def load():
     else:
       return val_glove_features[index]
 
-  return url_extension_featurizer, keyword_featurizer, url_word_count_featurizer, bag_of_words_featurizer, glove_featurizer, create_featurizer, instantiate_model, evaluate_model, show_weights
-
-# load everything
-url_extension_featurizer, keyword_featurizer, url_word_count_featurizer, bag_of_words_featurizer, glove_featurizer, create_featurizer, instantiate_model, evaluate_model, show_weights = load()
-
-compiled_featurizer = create_featurizer(
+  compiled_featurizer = create_featurizer(
     url_extension=url_extension_featurizer,
     keyword=keyword_featurizer,
     url_word_count=url_word_count_featurizer,
     bag_of_words=bag_of_words_featurizer,
     glove=glove_featurizer)
-
-model, X_train, X_val, feature_descriptions = instantiate_model(compiled_featurizer)
-print('Instantiated model.')
+  
+  model, X_train, X_val, feature_descriptions = instantiate_model(compiled_featurizer)
+  warnings.warn('Instantiated model.')
+    
+  return model, X_train, X_val, feature_descriptions
 
 # columns
 left, right = st.columns(2)
