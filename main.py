@@ -215,12 +215,13 @@ def load():
     html_length=lambda url, html: len(html),
     url_length=lambda url, html: len(url))
   
+  warnings.warn('Beginning to train model.')
   model, X_train, X_val, feature_descriptions = instantiate_model(compiled_featurizer)
   warnings.warn('Trained model.')
     
-  return model, X_train, X_val, feature_descriptions, requests
+  return model, X_train, X_val, feature_descriptions, compiled_featurizer, requests
 
-model, X_train, X_val, feature_descriptions, requests = load()
+model, X_train, X_val, feature_descriptions, compiled_featurizer, requests = load()
 
 # columns
 left, right = st.columns(2)
@@ -297,13 +298,7 @@ with right.form(key='try_it_out'):
       _, feature_values = zip(*features.items())
 
       prediction = model.predict([feature_values])[0]
-      advice = st.write('*We predict that your news is ' + ('FAKE' if prediction else 'REAL') + ' news!')
-      
-      st.divider()
-      
-      items = sorted(zip(feature_descriptions, [abs(coef_ * features[index]) for index, coef_ in enumerate(baseline_model.coef_[0].tolist())]), key=lambda x: x[1])
-      
-      
-      st.write('The top three features that allowed us to make this decision were: ' + items[0][0] + ', ' + items[1][0] + ', and ' + items[2][0] + '!')
+      items = sorted(zip(feature_descriptions, [abs(coef_ * features[index]) for index, coef_ in enumerate(baseline_model.coef_[0].tolist()) if (coef_ > 0 and prediction) or (coef_ < 0 and not prediction)]), key=lambda x: x[1])
+      advice = st.write('*We predict that your news is ' + ('FAKE' if prediction else 'REAL') + ' news!*\n\n' + 'The top three features that allowed us to make this decision were: ' + items[0][0] + ', ' + items[1][0] + ', and ' + items[2][0] + '!')
 #     except:
 #       advice = st.text('*I don\'t think your URL worked. Please check your spelling or try another.*')
