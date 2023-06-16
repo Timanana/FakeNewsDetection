@@ -36,6 +36,8 @@ def load():
     
   with open(os.path.join(basepath, 'train_val_data.pkl'), 'rb') as f:
     train_data, val_data = pickle.load(f)
+  
+  print('Data loaded.')
 
   # model
   from sklearn.feature_extraction.text import CountVectorizer
@@ -185,6 +187,8 @@ def load():
 
   train_bs = [bs(html, 'html.parser') for url, html, label in train_data]
   val_bs = [bs(html, 'html.parser') for url, html, label in val_data]
+  
+  print('Created soups.')
 
   # get raw descriptions
   def get_descriptions_from_data(data, is_train):
@@ -201,6 +205,8 @@ def load():
 
   train_descriptions = get_descriptions_from_data(train_data, True)
   val_descriptions = get_descriptions_from_data(val_data, False)
+  
+  print('Found descriptions.')
 
   # bag of words (bow)
   vectorizer = CountVectorizer(max_features=300) # create a new vectorizer
@@ -211,6 +217,8 @@ def load():
 
   train_bow_features = np.array(vectorize_data_descriptions(train_descriptions))
   val_bow_features = np.array(vectorize_data_descriptions(val_descriptions))
+  
+  print('Created Bag-of-Words features.')
 
   # GloVe
   VEC_SIZE = 300
@@ -244,6 +252,8 @@ def load():
 
   train_glove_features = glove_transform_data_descriptions(train_descriptions)
   val_glove_features = glove_transform_data_descriptions(val_descriptions)
+  
+  print('Created GloVe features.')
 
   def url_extension_featurizer(url, html, index, is_train, description):
     features = {}
@@ -322,6 +332,7 @@ compiled_featurizer = create_featurizer(
     glove=glove_featurizer)
 
 model, X_train, X_val, feature_descriptions = instantiate_model(compiled_featurizer)
+print('Instantiated model.')
 
 # columns
 left, right = st.columns(2)
