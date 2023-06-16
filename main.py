@@ -150,7 +150,7 @@ def load():
 
   # show weights (coefficients for each feature)
   def show_weights(model, feature_descriptions):
-    return '\n\n'.join(map(lambda feature: f"The feature '{feature[0]}' has a value of {feature[1]}.\nBecause of its sign, the presence of this feature indicates {'fake' if feature[1] > 0 else 'real'} news.", sorted(zip(feature_descriptions, baseline_model.coef_[0].tolist()), key=lambda x: abs(x[1]))))
+    return '\n\n'.join(map(lambda feature: f"The feature '{feature[0]}' has a value of {feature[1]}.\nBecause of its sign, the presence of this feature indicates {'fake' if feature[1] > 0 else 'real'} news.", sorted(zip(feature_descriptions, model.coef_[0].tolist()), key=lambda x: abs(x[1]))))
 
   # gets the log count of a phrase/keyword in HTML (transforming the phrase/keyword to lowercase).
   def get_normalized_keyword_count(html, keyword):
@@ -302,7 +302,7 @@ with right.form(key='try_it_out'):
   advice = st.write('*Make sure your URL is a valid news site.*')
 
   if st.form_submit_button(label='Submit', type='primary'):
-#     try:
+    try:
       response = requests.get(url)
       html = response.text.lower()
 
@@ -311,6 +311,6 @@ with right.form(key='try_it_out'):
 
       prediction = model.predict([feature_values])[0]
       items = sorted(zip(feature_descriptions, [abs(coef_ * feature_values[index]) for index, coef_ in enumerate(model.coef_[0].tolist()) if (coef_ > 0 and prediction) or (coef_ < 0 and not prediction)]), key=lambda x: x[1], reverse=True)
-      advice = st.write('*We predict that your news is ' + ('FAKE' if prediction else 'REAL') + ' news!*\n\n' + 'The top three features that allowed us to make this decision were: **' + items[0][0] + '**, **' + items[1][0] + '**, and **' + items[2][0] + '**!\n---\nHere are all the weights (there will be many).\n\n' + show_weights(model, feature_descriptions))
-#     except:
-#       advice = st.write('*I don\'t think your URL worked. Please check your spelling or try another.*')
+      advice = st.write('*We predict that your news is ' + ('FAKE' if prediction else 'REAL') + ' news!*\n\n' + 'The top three features that allowed us to make this decision were: **' + items[0][0] + '**, **' + items[1][0] + '**, and **' + items[2][0] + '**!\n---\nHere are all the weights (and the one bias).\n\nThe intercept (the value when all features are 0) is: ' + str(model.intercept_) + '.\n\n' + show_weights(model, feature_descriptions))
+    except:
+      advice = st.write('*I don\'t think your URL worked. Please check your spelling or try another.*')
