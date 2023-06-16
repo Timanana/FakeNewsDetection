@@ -358,7 +358,7 @@ with right.form(key='try_it_out'):
   advice = st.text('*Make sure your URL is a valid news site.*')
 
   if st.form_submit_button(label='Submit', type='primary'):
-    try:
+#     try:
       response = requests.get(url)
       html = response.text.lower()
       soup = bs(html, 'html.parser')
@@ -371,5 +371,5 @@ with right.form(key='try_it_out'):
 
       # put some scores, maybe? idk
       # also put the weights and the features
-    except:
-      advice = st.text('*I don\'t think your URL worked. Please check your spelling or try another.*')
+#     except:
+#       advice = st.text('*I don\'t think your URL worked. Please check your spelling or try another.*')
