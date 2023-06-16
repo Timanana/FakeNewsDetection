@@ -39,10 +39,7 @@ def load():
     train_data, val_data = pickle.load(f)
   
   warnings.warn('Data loaded.')
-
-  # model
-  from sklearn.feature_extraction.text import CountVectorizer
-  from torchtext.vocab import GloVe
+  
   from sklearn.linear_model import LogisticRegression
   from sklearn.metrics import precision_recall_fscore_support
   from sklearn.metrics import accuracy_score
@@ -64,7 +61,7 @@ def load():
       url, html, label = datapoint
       html = html.lower()
 
-      features = featurizer(url, html, index, is_train, None)
+      features = featurizer(url, html)
 
       # Gets the keys of the dictionary as descriptions, gets the values as the numerical features.
       feature_descriptions, feature_values = zip(*features.items())
@@ -147,116 +144,30 @@ def load():
   # other metrics
   def print_metrics(y_val, y_val_pred):
     prf = precision_recall_fscore_support(y_val, y_val_pred)
-
-    print('Accuracy (validation):', accuracy_score(y_val, y_val_pred))
-    print('Precision:', prf[0][1])
-    print('Recall:', prf[1][1])
-    print('F-Score:', prf[2][1])
+    return {'Accuracy': accuracy_score(y_val, y_val_pred), 'Precision': prf[0][1], 'Recall': prf[1][1], 'F-Score': prf[2][1]}
 
   # show weights (coefficients for each feature)
   def show_weights(model, feature_descriptions):
-    print('\n\n'.join(map(lambda feature: f"The feature '{feature[0]}' has a value of {feature[1]}.\nBecause of its sign, the presence of this feature indicates {'fake' if feature[1] > 0 else 'real'} news.", sorted(zip(feature_descriptions, baseline_model.coef_[0].tolist()), key=lambda x: abs(x[1])))))
+    return '\n\n'.join(map(lambda feature: f"The feature '{feature[0]}' has a value of {feature[1]}.\nBecause of its sign, the presence of this feature indicates {'fake' if feature[1] > 0 else 'real'} news.", sorted(zip(feature_descriptions, baseline_model.coef_[0].tolist()), key=lambda x: abs(x[1]))))
 
   # gets the log count of a phrase/keyword in HTML (transforming the phrase/keyword to lowercase).
-  def get_normalized_keyword_count(html, soup, keyword):
+  def get_normalized_keyword_count(html, keyword):
     # only concern words inside the body, to speed things up
     try:
-      necessary_html = soup.body.get_text() # already parsed, contains a body
+      necessary_html = html.split('<body')[1].split('</body>')[0] # soup could not find a body, but there does exist a body
     except:
-      try:
-        necessary_html = html.split('<body')[1].split('</body>')[0] # soup could not find a body, but there does exist a body
-      except:
-        necessary_html = html # if it doesn't have a body...
+      necessary_html = html # if it doesn't have a body...
 
     return math.log(1 + necessary_html.count(keyword.lower())) # log is a good normalizer
 
   # count the number of words in a URL
   def count_words_in_url(url):
-    for i in range(1, len(url)): # don't count the first letter, because sometimes that might be a word by itself (like why bother counting 'l' a word?)
+    for i in range(len(url), 2, -1): # don't count the first letter, because sometimes that might be a word by itself (like why bother counting 'l' a word?)
       if url[:i].lower() in vocab: # if it's a word
         return 1 + count_words_in_url(url[i:]) # get more words, and keep counting
     return 0 # no words in URL (or at least, it doesn't start with a word, such as NYTimes)
 
-  # get the description (usually a meta tag) from raw HTML
-  def get_description_from_html(soup):
-    description_tag = soup.find('meta', attrs={'name':'og:description'}) or soup.find('meta', attrs={'property':'description'}) or soup.find('meta', attrs={'name':'description'})
-    if description_tag:
-      description = description_tag.get('content') or ''
-    else: # If there is no description, return an empty string.
-      description = ''
-    return description
-
-  train_bs = [bs(html, 'html.parser') for url, html, label in train_data]
-  val_bs = [bs(html, 'html.parser') for url, html, label in val_data]
-  
-  warnings.warn('Created soups.')
-
-  # get raw descriptions
-  def get_descriptions_from_data(data, is_train):
-    # A dictionary mapping from url to description for the websites in the train_data.
-    descriptions = []
-    if is_train:
-      for soup in train_bs:
-        descriptions.append(get_description_from_html(soup))
-    else:
-      for soup in val_bs:
-        descriptions.append(get_description_from_html(soup))
-
-    return descriptions
-
-  train_descriptions = get_descriptions_from_data(train_data, True)
-  val_descriptions = get_descriptions_from_data(val_data, False)
-  
-  warnings.warn('Found descriptions.')
-
-  # bag of words (bow)
-  vectorizer = CountVectorizer(max_features=300) # create a new vectorizer
-  vectorizer.fit(train_descriptions)
-
-  def vectorize_data_descriptions(descriptions): # convert a description into a vector
-    return vectorizer.transform(descriptions).todense() # .todense() fills in blank values in the vector, so we can work with it
-
-  train_bow_features = np.array(vectorize_data_descriptions(train_descriptions))
-  val_bow_features = np.array(vectorize_data_descriptions(val_descriptions))
-  
-  warnings.warn('Created Bag-of-Words features.')
-
-  # GloVe
-  VEC_SIZE = 300
-  glove = GloVe(name='6B', dim=VEC_SIZE)
-
-  # Returns word vector for word if it exists, else return None.
-  def get_word_vector(word):
-    try:
-      return glove.vectors[glove.stoi[word.lower()]].numpy()
-    except KeyError:
-      return None
-
-  # just like above, transform our data
-  def glove_transform_data_descriptions(descriptions):
-    X = np.zeros((len(descriptions), VEC_SIZE))
-    for i, description in enumerate(descriptions):
-      found_words = 0.0
-      description = description.strip()
-      for word in description.split():
-        vec = get_word_vector(word)
-        if vec is not None:
-          # Increment found_words and add vec to X[i].
-          found_words += 1
-          X[i] += vec
-      # We divide the sum by the number of words added, so we have the
-      # average word vector.
-      if found_words > 0:
-        X[i] /= found_words
-
-    return X
-
-  train_glove_features = glove_transform_data_descriptions(train_descriptions)
-  val_glove_features = glove_transform_data_descriptions(val_descriptions)
-  
-  warnings.warn('Created GloVe features.')
-
-  def url_extension_featurizer(url, html, index, is_train, description):
+  def url_extension_featurizer(url, html):
     features = {}
 
     features['.com'] = url.endswith('.com')
@@ -284,7 +195,7 @@ def load():
 
     return features
 
-  def keyword_featurizer(url, html, index, is_train, description):
+  def keyword_featurizer(url, html):
     features = {}
 
     if is_train:
@@ -298,37 +209,19 @@ def load():
 
     return features
 
-  def url_word_count_featurizer(url, html, index, is_train, description):
+  def url_word_count_featurizer(url, html):
     return count_words_in_url(url.split(".")[-2])
     # for example, www.google.com will return google and nytimes.com will return nytimes
-
-  def bag_of_words_featurizer(url, html, index, is_train, description):
-    if index == -1:
-      return vectorize_data_descriptions([description])[0]
-
-    if is_train:
-      return train_bow_features[index]
-    else:
-      return val_bow_features[index]
-
-  def glove_featurizer(url, html, index, is_train, description):
-    if index == -1:
-      return glove_transform_data_descriptions([description])[0]
-      
-    if is_train:
-      return train_glove_features[index]
-    else:
-      return val_glove_features[index]
 
   compiled_featurizer = create_featurizer(
     url_extension=url_extension_featurizer,
     keyword=keyword_featurizer,
     url_word_count=url_word_count_featurizer,
-    bag_of_words=bag_of_words_featurizer,
-    glove=glove_featurizer)
+    html_length=lambda url, html: len(html),
+    url_length=lambda url, html: len(url))
   
   model, X_train, X_val, feature_descriptions = instantiate_model(compiled_featurizer)
-  warnings.warn('Instantiated model.')
+  warnings.warn('Trained model.')
     
   return model, X_train, X_val, feature_descriptions, requests
 
@@ -365,7 +258,7 @@ left.divider()
       *  We create individual features for the most common extensions—`1` if the URL ends in an extension and `0` otherwise. This is similar to a one-hot encoding.
       *  Alone, this accurately predicts the validity of the testing data `53.1%` of the time.
   *  Keywords.
-      *  This feature is similar to a bag of words, where we count the number of certain keywords in the HTML.
+      *  This feature is similar to a bag of words, where we count the number of certain keywords in the HTML body text.
       *  The keywords were determined by analyzing the training data. Specifically, we counted the words in real and fake news, weighted by if it was real or fake.
         * For example, if the word `apple` (this can't be controversial, right?) appears `10000` times total in some number of real sites, but only `100` times total in some number of fake sites—where we have the same number of real and fake sites, for simplicity—then our total count is `-9900`. This is very negative, so we add that as a keyword.
       *  We then normalized the count with the function 
@@ -392,6 +285,9 @@ left.write('Here are some metrics for our model! ... metrics')
 
 # on the right side, allow users to submit a URL
 right.header('Try it out!')
+right.write('*(Note that we do not use the bag-of-words or GloVe features in this model, to speed it up.')
+
+left.divider()
 
 with right.form(key='try_it_out'):
   url = st.text_input(label='Enter a news article or site URL to predict validity', key='url')
@@ -410,6 +306,6 @@ with right.form(key='try_it_out'):
       advice = st.text('*We predict that your news is ' + ('FAKE' if prediction else 'REAL') + ' news!')
 
       # put some scores, maybe? idk
-      # also put the weights and the features
+      # also put the weights and the features, and which contributed most
 #     except:
 #       advice = st.text('*I don\'t think your URL worked. Please check your spelling or try another.*')
