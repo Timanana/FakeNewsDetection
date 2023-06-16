@@ -354,7 +354,7 @@ left.write('Here are some metrics! ... metrics')
 right.header('Try it out!')
 
 with right.form(key='try_it_out'):
-  url = st.text_input(label='Enter a news article or site URL to predict validity', key='url'
+  url = st.text_input(label='Enter a news article or site URL to predict validity', key='url')
   advice = st.text('*Make sure your URL is a valid news site.*')
 
   if st.form_submit_button(label='Submit', type='primary'):
