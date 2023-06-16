@@ -7,8 +7,9 @@ st.set_page_config(layout='wide', page_title='Fake News Detection | Inspirit AI 
 # load the model and stuff
 @st.cache_resource
 def load():
-  # system
+  # useful
   import os
+  from PIL import Image
 
   # mathematics and operations
   import math
@@ -144,7 +145,7 @@ def load():
   # other metrics
   def print_metrics(y_val, y_val_pred):
     prf = precision_recall_fscore_support(y_val, y_val_pred)
-    return {'Accuracy': accuracy_score(y_val, y_val_pred), 'Precision': prf[0][1], 'Recall': prf[1][1], 'F-Score': prf[2][1]}
+    return {'Accuracy': accuracy_score(y_val, y_val_pred), 'Precision': prf[0][1], 'Recall': prf[1][1], 'F-1 Score': prf[2][1]}
 
   # show weights (coefficients for each feature)
   def show_weights(model, feature_descriptions):
@@ -258,7 +259,7 @@ left.divider()
       *  The keywords were determined by analyzing the training data. Specifically, we counted the words in real and fake news, weighted by if it was real or fake.
         * For example, if the word `apple` (this can't be controversial, right?) appears `10000` times total in some number of real sites, but only `100` times total in some number of fake sites—where we have the same number of real and fake sites, for simplicity—then our total count is `-9900`. This is very negative, so we add that as a keyword.
       *  We then normalized the count with the function 
-$\log\left(1+\#\right)$.
+$\log(1+\#)$.
       * Issues.
         *  Of course, this is limited by the fact that we can not count word pairs or n-grams in general.
         *  Furthermore, fake news is generally around twice as long as real news, so that is another issue.
@@ -275,9 +276,12 @@ $\log\left(1+\#\right)$.
   *  GloVe.
      *  We use the average word embeddings of the description of the website."""
 
-left.divider()
-
-left.write('Here are some metrics for our model! ... metrics')
+best_matrix = Image.open('best_matrix.png')
+left.subheader('Here are some metrics for our model!')
+left.write('**Maximum achieved accuracy:** $\frac{299}{309}\approx96.8\%$')
+left.write('**Maximum achieved precision:** $100\%$')
+left.write('**Maximum achieved recall:** $\frac{131}{141}approx92.9\%$')
+left.write('**Maximum achieved F-1 score:** $\frac{131}{136}approx96.3\%$')
 
 # on the right side, allow users to submit a URL
 right.header('Try it out!')
@@ -298,7 +302,7 @@ with right.form(key='try_it_out'):
       _, feature_values = zip(*features.items())
 
       prediction = model.predict([feature_values])[0]
-      items = sorted(zip(feature_descriptions, [abs(coef_ * features[index]) for index, coef_ in enumerate(baseline_model.coef_[0].tolist()) if (coef_ > 0 and prediction) or (coef_ < 0 and not prediction)]), key=lambda x: x[1])
+      items = sorted(zip(feature_descriptions, [abs(coef_ * features[index]) for index, coef_ in enumerate(model.coef_[0].tolist()) if (coef_ > 0 and prediction) or (coef_ < 0 and not prediction)]), key=lambda x: x[1])
       advice = st.write('*We predict that your news is ' + ('FAKE' if prediction else 'REAL') + ' news!*\n\n' + 'The top three features that allowed us to make this decision were: ' + items[0][0] + ', ' + items[1][0] + ', and ' + items[2][0] + '!')
 #     except:
 #       advice = st.text('*I don\'t think your URL worked. Please check your spelling or try another.*')
