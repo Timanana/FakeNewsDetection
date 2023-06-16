@@ -286,7 +286,7 @@ left.divider()
 
 with right.form(key='try_it_out'):
   url = st.text_input(label='Enter a news article or site URL to predict validity', key='url')
-  advice = st.text('*Make sure your URL is a valid news site.*')
+  advice = st.write('*Make sure your URL is a valid news site.*')
 
   if st.form_submit_button(label='Submit', type='primary'):
 #     try:
@@ -297,9 +297,13 @@ with right.form(key='try_it_out'):
       _, feature_values = zip(*features.items())
 
       prediction = model.predict([feature_values])[0]
-      advice = st.text('*We predict that your news is ' + ('FAKE' if prediction else 'REAL') + ' news!')
-
-      # put some scores, maybe? idk
-      # also put the weights and the features, and which contributed most
+      advice = st.write('*We predict that your news is ' + ('FAKE' if prediction else 'REAL') + ' news!')
+      
+      st.divider()
+      
+      items = sorted(zip(feature_descriptions, [abs(coef_ * features[index]) for index, coef_ in enumerate(baseline_model.coef_[0].tolist())]), key=lambda x: x[1])
+      
+      
+      st.write('The top three features that allowed us to make this decision were: ' + items[0][0] + ', ' + items[1][0] + ', and ' + items[2][0] + '!')
 #     except:
 #       advice = st.text('*I don\'t think your URL worked. Please check your spelling or try another.*')
