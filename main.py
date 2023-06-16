@@ -4,7 +4,7 @@ import warnings
 
 from PIL import Image
 
-st.set_page_config(layout='wide', page_title='Fake News Detection | Inspirit AI Weekday 2 All-Hands 3', page_icon=':newspaper:')
+st.set_page_config(layout='wide', page_title='Fake News Detection | Inspirit AI Weekday 2 All-Hands 3', page_icon=':newspaper:', menu_items={'About': '#Fake News Detection\nThis project was created for [Inspirit AI](https://www.inspiritai.com/).'})
 
 # load the model and stuff
 @st.cache_resource
@@ -207,7 +207,7 @@ def load():
     return features
 
   def url_word_count_featurizer(url, html):
-    return count_words_in_url(url.split(".")[-2])
+    return count_words_in_url(url.split('.')[-2])
     # for example, www.google.com will return google and nytimes.com will return nytimes
 
   compiled_featurizer = create_featurizer(
@@ -298,13 +298,17 @@ right.header('Try it out!')
 right.write('*(Note that we do not use the bag-of-words or GloVe features in this model, in order to speed up deployment and save memory. See our [Google Colab](https://colab.research.google.com/drive/1NutMv5iJ2DAbU_YHPRonSrurvHQ2Al9v?usp=sharing) if you would like to view the entirety of the code).*')
 
 with right.form(key='try_it_out'):
-  url = st.text_input(label='Enter a news article or site URL to predict validity', key='url')
-  st.write('*Make sure your URL is a valid news site.*')
+  raw_url = st.text_input(label='Enter a news article or site URL to predict validity', key='url')
+  st.write('*Make sure your URL is valid.*')
 
   if st.form_submit_button(label='Submit', type='primary'):
 #     try:
-      response = requests.get(url)
+      if '://' not in raw_url:
+        raw_url = 'http://' + raw_url
+      
+      response = requests.get(raw_url)
       html = response.text.lower()
+      url = raw_url.split('/')[2]
 
       features = compiled_featurizer(url, html)
       _, feature_values = zip(*features.items())
