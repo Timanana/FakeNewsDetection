@@ -198,14 +198,9 @@ def load():
   def keyword_featurizer(url, html):
     features = {}
 
-    if is_train:
-      soup = train_bs[index]
-    else:
-      soup = val_bs[index]
-
     keywords = ['vertical', 'news', 'section', 't', 'light', 'data', 'eq', 'medium', 'large', 'ad', 'header', 'text', 'js', 'nav', 'analytics', 'article', 'menu', 'tv', 'cnn', 'button', 'icon', 'edition', 'span', 'item', 'label', 'link', 'world', 'politics', 'president', 'donald', 'business', 'food', 'tech', 'style', 'amp', 'vr', 'watch', 'search', 'list', 'media', 'wrapper', 'div', 'zn', 'l', 'card', 'm', 'z', 'var', 'prod', 'true', 'window', 'u', 'n', 'new', 's', 'color', 'width', 'container', 'mobile', 'fixed', 'flex', 'aria', 'tablet', 'desktop', 'type', 'size', 'tracking', 'heading', 'logo', 'svg', 'path', 'fill', 'content', 'ul', 'li', 'shop', 'home', 'static', 'wrap', 'main', 'img', 'celebrity', 'lazy', 'image', 'high', 'noscript', 'inner', 'margin', 'headline', 'child', 'interest', 'john', 'movies', 'music', 'parents', 'real', 'warren', 'opens', 'share', 'people', 'max', 'min', 'state', 'event', 'story', 'click', 'time', 'trump', 'elizabeth', 'year', 'visit', 'post', 'public', 'module', 'latest', 'star', 'skip', 'imagesvc', 'p', 'posted', 'ltc', 'summer', 'square', 'solid', 'default', 'g', 'super', 'house', 'pride', 'week', 'america', 'man', 'day', 'wp', 'york', 'id', 'gallery', 'inside', 'calls', 'big', 'daughter', 'photo', 'joe', 'deal', 'app', 'special', 'j', 'source', 'red', 'table', 'money', 'family', 'featured', 'makes', 'pete', 'michael', 'video', 'case', 'says', 'popup', 'carousel', 'category', 'script', 'helvetica', 'feature', 'dark', 'extra', 'small', 'horizontal', 'bg', 'hierarchical', 'paginated', 'siblings', 'grid', 'active', 'demand', 'background', 'height', 'cn', 'cd', 'src', 'cnnnext', 'dam', 'report', 'trade', 'images', 'file', 'huawei', 'mueller', 'impeachment', 'retirement', 'tealium', 'col', 'immigration', 'china', 'flag', 'track', 'tariffs', 'sanders', 'staff', 'fn', 'srcset', 'green', 'orient', 'iran', 'morning', 'jun', 'debate', 'ocasio', 'cortez', 'voters', 'pelosi', 'barr', 'buttigieg', 'american', 'object', 'javascript', 'r', 'h', 'uppercase', 'omtr', 'chris', 'dn', 'hfs', 'rachel', 'maddow', 'lh', 'teasepicture', 'db', 'xl', 'articletitlesection', 'founders', 'mono', 'ttu', 'biden', 'boston', 'bold', 'anglerfish', 'jeffrey', 'radius']
     for keyword in keywords:
-      features[keyword + ' keyword'] = get_normalized_keyword_count(html, soup, keyword)
+      features[keyword + ' keyword'] = get_normalized_keyword_count(html, keyword)
 
     return features
 
@@ -297,9 +292,8 @@ with right.form(key='try_it_out'):
 #     try:
       response = requests.get(url)
       html = response.text.lower()
-      soup = bs(html, 'html.parser')
 
-      features = compiled_featurizer(url, html, -1, False, soup)
+      features = compiled_featurizer(url, html)
       _, feature_values = zip(*features.items())
 
       prediction = model.predict([feature_values])[0]
