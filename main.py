@@ -89,11 +89,11 @@ def load():
   # a wrapper function that takes in named a list of keyword argument functions
   # each of those functions are given the URL and HTML, and expected to return a list or dictionary with the appropriate features
   def create_featurizer(**featurizers):
-    def featurizer(url, html, index, is_train, description):
+    def featurizer(url, html):
       features = {}
 
       for group_name, featurizer in featurizers.items():
-        group_features = featurizer(url, html, index, is_train, description)
+        group_features = featurizer(url, html)
 
         if type(group_features) == type([]):
           for feature_name, feature_value in zip(range(len(group_features))):
