@@ -149,8 +149,8 @@ def load():
     return {'Accuracy': accuracy_score(y_val, y_val_pred), 'Precision': prf[0][1], 'Recall': prf[1][1], 'F-1 Score': prf[2][1]}
 
   # show weights (coefficients for each feature)
-  def show_weights(model, feature_descriptions):
-    return '\n\n'.join(map(lambda feature: f"The feature '{feature[0]}' has a value of {feature[1]}.\nBecause of its sign, the presence of this feature indicates {'fake' if feature[1] > 0 else 'real'} news.", sorted(zip(feature_descriptions, model.coef_[0].tolist()), key=lambda x: abs(x[1]))))
+  def show_weights(items):
+    return '\n\n'.join(map(lambda feature: f'The feature `{feature[0]}` has a weight of **{feature[1][1]}**. Multiplied by its value gives **{feature[1][0]}**.', items))
 
   # gets the log count of a phrase/keyword in HTML (transforming the phrase/keyword to lowercase).
   def get_normalized_keyword_count(html, keyword):
@@ -202,7 +202,7 @@ def load():
 
     keywords = ['vertical', 'news', 'section', 't', 'light', 'data', 'eq', 'medium', 'large', 'ad', 'header', 'text', 'js', 'nav', 'analytics', 'article', 'menu', 'tv', 'cnn', 'button', 'icon', 'edition', 'span', 'item', 'label', 'link', 'world', 'politics', 'president', 'donald', 'business', 'food', 'tech', 'style', 'amp', 'vr', 'watch', 'search', 'list', 'media', 'wrapper', 'div', 'zn', 'l', 'card', 'm', 'z', 'var', 'prod', 'true', 'window', 'u', 'n', 'new', 's', 'color', 'width', 'container', 'mobile', 'fixed', 'flex', 'aria', 'tablet', 'desktop', 'type', 'size', 'tracking', 'heading', 'logo', 'svg', 'path', 'fill', 'content', 'ul', 'li', 'shop', 'home', 'static', 'wrap', 'main', 'img', 'celebrity', 'lazy', 'image', 'high', 'noscript', 'inner', 'margin', 'headline', 'child', 'interest', 'john', 'movies', 'music', 'parents', 'real', 'warren', 'opens', 'share', 'people', 'max', 'min', 'state', 'event', 'story', 'click', 'time', 'trump', 'elizabeth', 'year', 'visit', 'post', 'public', 'module', 'latest', 'star', 'skip', 'imagesvc', 'p', 'posted', 'ltc', 'summer', 'square', 'solid', 'default', 'g', 'super', 'house', 'pride', 'week', 'america', 'man', 'day', 'wp', 'york', 'id', 'gallery', 'inside', 'calls', 'big', 'daughter', 'photo', 'joe', 'deal', 'app', 'special', 'j', 'source', 'red', 'table', 'money', 'family', 'featured', 'makes', 'pete', 'michael', 'video', 'case', 'says', 'popup', 'carousel', 'category', 'script', 'helvetica', 'feature', 'dark', 'extra', 'small', 'horizontal', 'bg', 'hierarchical', 'paginated', 'siblings', 'grid', 'active', 'demand', 'background', 'height', 'cn', 'cd', 'src', 'cnnnext', 'dam', 'report', 'trade', 'images', 'file', 'huawei', 'mueller', 'impeachment', 'retirement', 'tealium', 'col', 'immigration', 'china', 'flag', 'track', 'tariffs', 'sanders', 'staff', 'fn', 'srcset', 'green', 'orient', 'iran', 'morning', 'jun', 'debate', 'ocasio', 'cortez', 'voters', 'pelosi', 'barr', 'buttigieg', 'american', 'object', 'javascript', 'r', 'h', 'uppercase', 'omtr', 'chris', 'dn', 'hfs', 'rachel', 'maddow', 'lh', 'teasepicture', 'db', 'xl', 'articletitlesection', 'founders', 'mono', 'ttu', 'biden', 'boston', 'bold', 'anglerfish', 'jeffrey', 'radius']
     for keyword in keywords:
-      features[keyword + ' keyword'] = get_normalized_keyword_count(html, keyword)
+      features[keyword] = get_normalized_keyword_count(html, keyword)
 
     return features
 
@@ -299,10 +299,10 @@ right.write('*(Note that we do not use the bag-of-words or GloVe features in thi
 
 with right.form(key='try_it_out'):
   url = st.text_input(label='Enter a news article or site URL to predict validity', key='url')
-  advice = st.write('*Make sure your URL is a valid news site.*')
+  st.write('*Make sure your URL is a valid news site.*')
 
   if st.form_submit_button(label='Submit', type='primary'):
-    try:
+#     try:
       response = requests.get(url)
       html = response.text.lower()
 
@@ -310,7 +310,21 @@ with right.form(key='try_it_out'):
       _, feature_values = zip(*features.items())
 
       prediction = model.predict([feature_values])[0]
-      items = sorted(zip(feature_descriptions, [abs(coef_ * feature_values[index]) for index, coef_ in enumerate(model.coef_[0].tolist()) if (coef_ > 0 and prediction) or (coef_ < 0 and not prediction)]), key=lambda x: x[1], reverse=True)
-      advice = st.write('*We predict that your news is ' + ('FAKE' if prediction else 'REAL') + ' news!*\n\n' + 'The top three features that allowed us to make this decision were: **' + items[0][0] + '**, **' + items[1][0] + '**, and **' + items[2][0] + '**!\n---\nHere are all the weights (and the one bias).\n\nThe intercept (the value when all features are 0) is: ' + str(model.intercept_) + '.\n\n' + show_weights(model, feature_descriptions))
-    except:
-      advice = st.write('*I don\'t think your URL worked. Please check your spelling or try another.*')
+      
+      st.write('*We predict that your news is ' + ('FAKE' if prediction else 'REAL') + ' news!*')      
+      st.divider()
+      
+      items = sorted(zip(feature_descriptions, [(abs(coef_ * feature_values[index]), coef_) for index, coef_ in enumerate(model.coef_[0].tolist()) if (coef_ > 0 and prediction) or (coef_ < 0 and not prediction)]), key=lambda x: x[1][0], reverse=True)
+
+      warnings.warn(str(items)[:100]) # debug
+      
+      with st.expander('See why.'):
+        st.write('The top three features that allowed us to make this decision were: **' + items[0][0] + '**, **' + items[1][0] + '**, and **' + items[2][0] + '**!')
+      
+      with st.expander('See model parameters.'):
+        st.write('The intercept (the value when all features are 0) is: ' + str(model.intercept_[0]) + '.')
+        st.divider()
+        st.write('Here are all the feature weights that contributed to the decision.')
+        st.write(show_weights(items))
+#     except:
+#       advice = st.write('*I don\'t think your URL worked. Please check your spelling or try another.*')
