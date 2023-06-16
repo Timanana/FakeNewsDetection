@@ -330,7 +330,9 @@ def load():
   model, X_train, X_val, feature_descriptions = instantiate_model(compiled_featurizer)
   warnings.warn('Instantiated model.')
     
-  return model, X_train, X_val, feature_descriptions
+  return model, X_train, X_val, feature_descriptions, requests
+
+model, X_train, X_val, feature_descriptions, requests = load()
 
 # columns
 left, right = st.columns(2)
