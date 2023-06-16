@@ -51,12 +51,6 @@ def load():
   from nltk.corpus import words
   vocab = words.words()
 
-  # for keywords, later
-  import spacy
-
-  subprocess.run(['python', '-m', 'spacy', 'download', 'en_core_web_md'])
-  text_to_nlp = spacy.load('en_core_web_md')
-
   y_train = [label for url, html, label in train_data]
   y_val = [label for url, html, label in val_data]
 
@@ -189,8 +183,8 @@ def load():
       description = ''
     return description
 
-  train_bs = [bs(html) for url, html, label in train_data]
-  val_bs = [bs(html) for url, html, label in val_data]
+  train_bs = [bs(html, 'html.parser') for url, html, label in train_data]
+  val_bs = [bs(html, 'html.parser') for url, html, label in val_data]
 
   # get raw descriptions
   def get_descriptions_from_data(data, is_train):
@@ -360,7 +354,7 @@ with right.form(key='try_it_out'):
     try:
       response = requests.get(url)
       html = response.text.lower()
-      soup = bs(html)
+      soup = bs(html, 'html.parser')
 
       features = compiled_featurizer(url, html, -1, False, soup)
       _, feature_values = zip(*features.items())
