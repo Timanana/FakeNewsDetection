@@ -287,7 +287,7 @@ with right.form(key='try_it_out'):
 with st.expander('See an overview.'):
   """
   *  Basics
-      *  For each news article or site, we use extract **features** from the **URL** and **HTML**, such as, a vector describing the domain extension of the URL.
+      *  For each news article or site, we extract **features** from the **URL** and **HTML**, such as, a vector describing the domain extension of the URL.
       *  We feed this into a logistic regression model, and out comes the result.
   *  Data
       *  The data was taken from news sites around the world, containing `2002` examples in the training data, and `309` in the testing data.
