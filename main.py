@@ -2,6 +2,8 @@ import streamlit as st
 import subprocess
 import warnings
 
+from PIL import Image
+
 st.set_page_config(layout='wide', page_title='Fake News Detection | Inspirit AI Weekday 2 All-Hands 3', page_icon=':newspaper:')
 
 # load the model and stuff
@@ -9,7 +11,6 @@ st.set_page_config(layout='wide', page_title='Fake News Detection | Inspirit AI 
 def load():
   # useful
   import os
-  from PIL import Image
 
   # mathematics and operations
   import math
@@ -264,6 +265,7 @@ $\log(1+\#)$.
         *  Of course, this is limited by the fact that we can not count word pairs or n-grams in general.
         *  Furthermore, fake news is generally around twice as long as real news, so that is another issue.
       * For example, the letter `u` is strongly correlated with real news, while `president` is strongly correlated with fake news.
+      * By itself, this had an accuracy of `89.6\%`.
   *  URL word count.
      *  Some sites, such as `yahoo.com` or `cnn.com` have few (or no) words in them.
      *  Some sites, such as `redflagnews.com` or `consortiumtimes.com` have several.
@@ -274,7 +276,10 @@ $\log(1+\#)$.
   *  Bag of Words.
      *  We count the number of each of a set of the `300` most common words in the description of the website, and create `300` features.
   *  GloVe.
-     *  We use the average word embeddings of the description of the website."""
+     *  We use the average word embeddings of the description of the website.
+  *  Lengths (of URL and HTML).
+     *  We calculated the lengths of the URL and HTML.
+"""
 
 best_matrix = Image.open('best_matrix.png')
 left.subheader('Here are some metrics for our model!')
