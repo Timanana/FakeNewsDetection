@@ -221,9 +221,9 @@ def load():
   model, X_train, X_val, feature_descriptions = instantiate_model(compiled_featurizer)
   warnings.warn('Trained model.')
     
-  return model, X_train, X_val, feature_descriptions, compiled_featurizer, requests
+  return model, X_train, X_val, feature_descriptions, compiled_featurizer, requests, confusion_matrix, print_metrics, show_weights
 
-model, X_train, X_val, feature_descriptions, compiled_featurizer, requests = load()
+model, X_train, X_val, feature_descriptions, compiled_featurizer, requests, confusion_matrix, print_metrics, show_weights = load()
 
 # columns
 left, right = st.columns(2)
@@ -302,7 +302,7 @@ with right.form(key='try_it_out'):
   advice = st.write('*Make sure your URL is a valid news site.*')
 
   if st.form_submit_button(label='Submit', type='primary'):
-#     try:
+    try:
       response = requests.get(url)
       html = response.text.lower()
 
@@ -312,5 +312,5 @@ with right.form(key='try_it_out'):
       prediction = model.predict([feature_values])[0]
       items = sorted(zip(feature_descriptions, [abs(coef_ * feature_values[index]) for index, coef_ in enumerate(model.coef_[0].tolist()) if (coef_ > 0 and prediction) or (coef_ < 0 and not prediction)]), key=lambda x: x[1], reverse=True)
       advice = st.write('*We predict that your news is ' + ('FAKE' if prediction else 'REAL') + ' news!*\n\n' + 'The top three features that allowed us to make this decision were: **' + items[0][0] + '**, **' + items[1][0] + '**, and **' + items[2][0] + '**!\n---\nHere are all the weights (there will be many).\n\n' + show_weights(model, feature_descriptions))
-#     except:
-#       advice = st.text('*I don\'t think your URL worked. Please check your spelling or try another.*')
+    except:
+      advice = st.text('*I don\'t think your URL worked. Please check your spelling or try another.*')
