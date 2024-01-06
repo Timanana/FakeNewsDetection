@@ -4,7 +4,8 @@ import warnings
 
 from PIL import Image
 
-st.set_page_config(layout='wide', page_title='Fake News Detection | Inspirit AI Weekday 2 All-Hands 3', page_icon=':newspaper:', menu_items={'About': '#Fake News Detection\nThis project was created for [Inspirit AI](https://www.inspiritai.com/).'})
+st.set_page_config(layout='wide', page_title='Fake News Detection | Inspirit AI 2024 Weekday 2 All-Hands 3', page_icon=':newspaper:', menu_items={'About': 'Our project was created as a group project for [Inspirit AI](https://www.inspiritai.com/) in 2023.'})
+st.write('<style>body { margin: 0; font-family: sans-serif; } .header{padding: 10px 16px; background: #555; color: #f1f1f1; position: fixed; top: 0; } .sticky { position: fixed; top: 0; width: 100%; }</style><div class="header">This was created as a group project as part of the [Inspirit AI](https://www.inspiritai.com/) summer program in 2023. It is not meant to be a perfect indicator of factuality or the lack thereof.</div>', unsafe_allow_html=True)
 
 # load the model and stuff
 @st.cache_resource
@@ -226,9 +227,8 @@ left, right = st.columns(2)
 
 # on the left, do the overview
 left.title('Fake News Detection')
-left.header('Inspirit AI')
-left.subheader('Weekday 2 All-Hands 3')
-left.write('**Instructor:** Paul')
+left.subheader('A project for Inspirit AI, 2023 (Weekday 2 All-Hands 3).')
+left.write('We would like to thank our instructor, Paul, for all his help.')
 left.write('**Group Members:** Daanish, Daniel, Dheeraj, Justin, Pranil, Timothy')
 
 left.divider()
@@ -332,6 +332,6 @@ with st.expander('See an overview.'):
 
 with st.expander('See our data.'):
   st.write('**Training data (only first 20 rows).**')
-  st.table({'URL': [datapoint[0] for datapoint in train_data[:20]], 'HTML (for 100 characters)': [datapoint[1][:100] for datapoint in train_data[:20]], 'Label': ['Fake' if datapoint[2] else 'Real' for datapoint in train_data[:20]]})
+  st.table({'URL': [datapoint[0] for datapoint in train_data[:20]], 'HTML (first 100 characters)': [datapoint[1][:100] for datapoint in train_data[:20]], 'Label': ['Fake' if datapoint[2] else 'Real' for datapoint in train_data[:20]]})
   st.write('**Training data (only first 10 rows).**')
-  st.table({'URL': [datapoint[0] for datapoint in val_data[:10]], 'HTML (for 100 characters)': [datapoint[1][:100] for datapoint in val_data[:10]], 'Label': ['Fake' if datapoint[2] else 'Real' for datapoint in val_data[:10]]})
+  st.table({'URL': [datapoint[0] for datapoint in val_data[:10]], 'HTML (first 100 characters)': [datapoint[1][:100] for datapoint in val_data[:10]], 'Label': ['Fake' if datapoint[2] else 'Real' for datapoint in val_data[:10]]})
