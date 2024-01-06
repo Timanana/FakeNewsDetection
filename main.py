@@ -5,7 +5,7 @@ import warnings
 from PIL import Image
 
 st.set_page_config(layout='wide', page_title='Fake News Detection | Inspirit AI 2024 Weekday 2 All-Hands 3', page_icon=':newspaper:', menu_items={'About': 'Our project was created as a group project for [Inspirit AI](https://www.inspiritai.com/) in 2023.'})
-st.write('<style>body { margin: 0; font-family: sans-serif; } .header{padding: 10px 16px; background: #555; color: #f1f1f1; position: fixed; top: 0; } .sticky { position: fixed; top: 0; width: 100%; }</style><div class="header">This was created as a group project as part of the [Inspirit AI](https://www.inspiritai.com/) summer program in 2023. It is not meant to be a perfect indicator of factuality or the lack thereof.</div>', unsafe_allow_html=True)
+st.write('<style>body { margin: 0; font-family: sans-serif; } .header{padding: 15px 12px; background: #555; color: #f1f1f1; position: fixed; top: 40px; width: 75%; border-radius: 6px; } .sticky { position: fixed; top: 0; width: 100%; }</style><div class="header">This was created as a group project as part of the <a href="https://www.inspiritai.com/">Inspirit AI</a> summer program in 2023. It is not meant to be a perfect indicator of factuality or the lack thereof.</div>', unsafe_allow_html=True)
 
 # load the model and stuff
 @st.cache_resource
